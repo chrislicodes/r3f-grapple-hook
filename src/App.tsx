@@ -1,34 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { KeyboardControls, Sky, PointerLockControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { Physics } from "@react-three/rapier";
+import { Ground } from "./components/Ground";
+import { Player } from "./components/Player";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    <KeyboardControls
+      map={[
+        { name: "forward", keys: ["ArrowUp", "w", "W"] },
+        { name: "backward", keys: ["ArrowDown", "s", "S"] },
+        { name: "left", keys: ["ArrowLeft", "a", "A"] },
+        { name: "right", keys: ["ArrowRight", "d", "D"] },
+        { name: "jump", keys: ["Space"] },
+      ]}
+    >
+      <Canvas shadows camera={{ fov: 60 }}>
+        <Sky sunPosition={[100, 20, 100]} />
+        <ambientLight intensity={0.3} />
+        <pointLight castShadow intensity={0.8} position={[100, 100, 100]} />
+        <Physics gravity={[0, -30, 0]}>
+          <Ground />
+          <Player />
+          {/* <Cube position={[0, 0.5, -10]} /> */}
+          {/* <Cubes /> */}
+        </Physics>
+        <PointerLockControls />
+      </Canvas>
+    </KeyboardControls>
+  );
 }
 
-export default App
+export default App;
