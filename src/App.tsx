@@ -9,6 +9,7 @@ export enum Controls {
   LEFTWARD = 'leftward',
   RIGHTWARD = 'rightward',
   JUMP = 'jump',
+  HOOK = 'hook',
 }
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       { name: Controls.LEFTWARD, keys: ['ArrowLeft', 'KeyA'] },
       { name: Controls.RIGHTWARD, keys: ['ArrowRight', 'KeyD'] },
       { name: Controls.JUMP, keys: ['Space'] },
+      { name: Controls.HOOK, keys: ['Shift'] },
     ],
     []
   );

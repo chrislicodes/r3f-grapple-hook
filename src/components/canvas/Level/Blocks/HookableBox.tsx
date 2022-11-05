@@ -9,7 +9,13 @@ import { BaseEntity, boxGeometry, boxMaterial, boxHitMaterial } from './shared';
 export const HookableBox = ({ position = [0, 0, 0] }: BaseEntity) => {
   const [isClicked, setIsClicked] = useState(false);
   return (
-    <group position={position} onClick={() => setIsClicked((prev) => !prev)}>
+    <group
+      position={position}
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsClicked((prev) => !prev);
+      }}
+    >
       <RigidBody
         type="fixed"
         colliders="cuboid"
