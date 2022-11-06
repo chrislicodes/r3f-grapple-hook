@@ -6,6 +6,7 @@ import {
   useRapier,
   type RigidBodyApi,
 } from '@react-three/rapier';
+import { useControls } from 'leva';
 import { useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
@@ -18,7 +19,20 @@ const frontVector = new THREE.Vector3();
 const sideVector = new THREE.Vector3();
 
 const Player = () => {
-  const [connectedTo, setConnectedTo] = useState<null | Vector3>(null);
+  const [connectedTo, setConnectedTo] = useState<null | {
+    startPoint: Vector3;
+    endPoint: Vector3;
+  }>(null);
+
+  const { springForce, dampingFactor, minLength, maxLength } = useControls(
+    'Rope Properties',
+    {
+      springForce: 20,
+      dampingFactor: 0.8,
+      minLength: 0.25,
+      maxLength: 0.8,
+    }
+  );
 
   const ropeRef = useRef<
     THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
@@ -41,7 +55,7 @@ const Player = () => {
   /**
    * Animation Frame
    */
-  useFrame(() => {
+  useFrame((_, delta) => {
     if (!playerRef.current) return;
 
     const { forward, backward, leftward, rightward, jump, hook } = get();
@@ -94,10 +108,38 @@ const Player = () => {
        */
       //Apply Impulse in the direction of the target
       //TODO: minLength, maxLength, damping, springForce, massScale
-      const origin = playerRef.current.translation();
-      const targetDirection = new Vector3().copy(connectedTo).sub(origin);
-      playerRef.current.applyImpulse(targetDirection.setLength(0.2));
 
+      const origin = playerRef.current.translation();
+      const targetDirection = new Vector3()
+        .copy(connectedTo.endPoint)
+        .sub(origin);
+
+      //calculate ropeLength
+      const ropeLength = connectedTo.startPoint.distanceTo(
+        connectedTo.endPoint
+      );
+
+      //calculate min and max length of rope
+      const maxRopeLength = ropeLength * maxLength;
+      const minRopeLength = ropeLength * minLength;
+
+      const distanceToTarget = origin.distanceTo(connectedTo.endPoint);
+
+      if (distanceToTarget > maxRopeLength) {
+        playerRef.current.applyImpulse(
+          targetDirection.setLength(
+            springForce * (distanceToTarget - maxRopeLength) * delta
+          )
+        );
+      }
+
+      if (distanceToTarget < maxLength && distanceToTarget > minRopeLength) {
+        playerRef.current.applyImpulse({
+          x: 0,
+          y: 9.81 * dampingFactor,
+          z: 0,
+        });
+      }
       /**
        * ANIMATE ROPE
        */
@@ -139,7 +181,10 @@ const Player = () => {
       if (hit?.toi) {
         const newRay = ray.pointAt(hit.toi);
 
-        setConnectedTo(new Vector3(newRay.x, newRay.y, newRay.z));
+        setConnectedTo({
+          startPoint: origin,
+          endPoint: new Vector3(newRay.x, newRay.y, newRay.z),
+        });
       }
     }
 

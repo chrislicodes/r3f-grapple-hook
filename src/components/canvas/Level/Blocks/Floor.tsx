@@ -11,7 +11,7 @@ export const Floor = ({
 }: BaseEntity) => {
   return (
     <group position={position}>
-      <RigidBody type="fixed" restitution={0.2} friction={1}>
+      <RigidBody type="fixed" restitution={0} friction={4}>
         <mesh
           geometry={boxGeometry}
           material={material}
