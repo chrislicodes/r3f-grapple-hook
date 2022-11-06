@@ -27,7 +27,7 @@ const Experience = () => {
       <Physics updatePriority={Update.Physics}>
         {rapierDebug && <Debug />}
         <Level />
-        <Player debug={rapierDebug} />
+        <Player />
       </Physics>
       <PointerLockControls />
     </>
